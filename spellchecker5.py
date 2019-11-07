@@ -1,6 +1,6 @@
 import re #import to remove non-alphabetic characters
 import os #import to clear screen
-import time #import to measure time
+from time import time #import to measure time
 import datetime #import to measure date
 
 from difflib import SequenceMatcher #import to possibly change a wrong word, check simmilarity between words
@@ -72,7 +72,7 @@ while True:
     correctnr, incorrectnr, ignored_nr, marked_nr, addedtodict_nr, changed_counter, run_writeinenglist = 0, 0, 0, 0, 0, 0, 0
     sentence_rewrite = ""
 
-    time_start = time.time_ns() #starts measuring the time
+    time_start = time() #starts measuring the time
 
     for i in range (len(sentence)):
         os.system("clear")
@@ -136,7 +136,7 @@ while True:
                     run_writeinenglist = 1
                 break
 
-    time_taken = (time.time_ns() - time_start) // 1000 #takes the time taken
+    time_taken = int((time() - time_start) * 1000000) #takes the time taken
 
     details_output="""\n   Number of words: {0}
    Number of correctly spelt words: {1}
