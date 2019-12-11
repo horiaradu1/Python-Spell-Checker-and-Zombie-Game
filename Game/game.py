@@ -104,4 +104,33 @@ canvas.pack(fill = "both", expand = True)
 
 makeFullscreen()
 
+bossimg = PhotoImage(file = "images/bossimage.png")
+
+imgup = PhotoImage(file = "images/playerup.png")
+playerup = imgup.subsample(3, 3)
+imgdown = PhotoImage(file = "images/playerdown.png")
+playerdown = imgdown.subsample(3, 3)
+imgleft = PhotoImage(file = "images/playerleft.png")
+playerleft = imgleft.subsample(3, 3)
+imgright = PhotoImage(file = "images/playerright.png")
+playerright = imgright.subsample(3, 3)
+
+eimgup = PhotoImage(file = "images/enemyup.png")
+enemyup = eimgup.subsample(4, 4)
+eimgdown = PhotoImage(file = "images/enemydown.png")
+enemydown = eimgdown.subsample(4, 4)
+eimgleft = PhotoImage(file = "images/enemyleft.png")
+enemyleft = eimgleft.subsample(4, 4)
+eimgright = PhotoImage(file = "images/enemyright.png")
+enemyright = eimgright.subsample(4, 4)
+
+bimgup = PhotoImage(file = "images/bulletup.png")
+bulletup = bimgup.subsample(4, 4)
+bimgdown = PhotoImage(file = "images/bulletdown.png")
+bulletdown = bimgdown.subsample(4, 4)
+bimgleft = PhotoImage(file = "images/bulletleft.png")
+bulletleft = bimgleft.subsample(4, 4)
+bimgright = PhotoImage(file = "images/bulletright.png")
+bulletright = bimgright.subsample(4, 4)
+
 game.mainloop()
