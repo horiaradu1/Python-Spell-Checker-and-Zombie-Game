@@ -380,6 +380,17 @@ def game_loop():
 
     game.after(20,game_loop)
 
+def random_enemy():
+    global canvas
+    global Player
+    enemy_width = random.randint(0,width)
+    enemy_height = random.randint(0,height)
+    localplayer_coords = canvas.coords(Player.shape)
+    while enemy_width > localplayer_coords[0]-160 and enemy_width < localplayer_coords[2]+160 and enemy_height > localplayer_coords[1]-160 and enemy_height < localplayer_coords[3]+160:
+        enemy_width = random.randint(100,width-100)
+        enemy_height = random.randint(100,height-100)
+    return (enemy_width, enemy_height)
+
 game = Tk()
 global widthscreen
 global heightscreen
