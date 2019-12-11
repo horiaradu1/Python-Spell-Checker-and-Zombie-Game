@@ -2,6 +2,7 @@ from tkinter import *
 import random
 import time
 import math
+import pickle
 
 class gamesprite:
     def __init__(self, x, y, r, image):
@@ -289,8 +290,95 @@ def makeFullscreen():
     game.attributes('-fullscreen',False)     #For fullscreen mode, to swith press F11
     game.bind("<F11>", lambda event: game.attributes("-fullscreen", not game.attributes("-fullscreen")))
 
+def pause(event):
+    global gamePaused
+    global pausetxt
+    global canvas
+    global end
+    global menu
+    global countdown
+
+    if not end:
+        if gamePaused and countdown == False:
+            try:
+                canvas.delete(pausetxt)
+            except NameError:
+                pass
+            try:
+                menu.destroy()
+            except NameError:
+                pass
+            ready_timer(3, None)
+            countdown = True
+        elif not gamePaused and countdown == False:
+            game_timer.pause()
+            pausetxt = canvas.create_text(width//2,height//1.5,anchor=N, font=("Purisa",40),text="Game Paused")
+            gamePaused = not gamePaused
+
+
+def ready_timer(time, text):
+    global gamePaused
+    global canvas
+    global scoretxt
+    global ammotxt
+    global countdown
+    if time > 0:
+        if text != None:
+            canvas.delete(text)
+        text = canvas.create_text(width//2,height//1.5,anchor=N, font=("Purisa",40),text="Game resuimg in " + str(time) + " seconds...")
+        game.after(1000, lambda tr=time-1, txt=text: ready_timer(tr, txt))
+    else:
+        canvas.delete(text)
+        gamePaused = not gamePaused
+        game_timer.unpause()
+        for oneenemy in Enemy:
+            oneenemy.start()
+        canvas.delete(scoretxt)
+        canvas.delete(ammotxt)
+        scoretxt = canvas.create_text(150,50,anchor=N,font=("Purisa",30),text="Score: " + str(int((score))))
+        ammotxt = canvas.create_text(175,100,anchor=N,font=("Purisa",30),text="Ammo: {0}/10".format(10-maxshots))
+        countdown = False
+
 def game_loop():
-    pass
+    global end
+    global width
+    global height
+    global timertxt
+    global scoretxt
+    global maxshots
+    global endtxt
+
+    if end == False and gamePaused == False:
+        Player.movePlayer()
+        try:
+            canvas.delete(timertxt)
+        except NameError:
+            pass
+        timertxt = canvas.create_text(width-200,height/16,anchor=N,font=("Purisa",30),text="Time left: " + str(int((game_timer.get_time()))))
+
+        if int(game_timer.get_time()) == 0:
+            end = True
+            endtxt = canvas.create_text(width//2,height//1.5,anchor=N, font=("Purisa",30),text="Time is up! You killed " + str(score) + " zombies")
+            Player.change_coords(width//2, height//2)
+            for oneenemy in Enemy:
+                coords = random_enemy()
+                oneenemy.change_coords(coords[0], coords[1])
+            dump_leaderboard()
+            restart_vars()
+            mainmenu()
+
+        random_time = random.randint(200,500)
+        game.update()
+        time.sleep(.001)
+
+        height = canvas.winfo_height()
+        width = canvas.winfo_width()
+
+    else:
+        for oneenemy in Enemy:
+           oneenemy.stop()
+
+    game.after(20,game_loop)
 
 game = Tk()
 global widthscreen
