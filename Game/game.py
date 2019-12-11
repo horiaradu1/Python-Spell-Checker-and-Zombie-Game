@@ -52,6 +52,26 @@ class gamesprite:
         elif local_coords[0] < 0:    #LEFT
             self.move(width-100,0)
 
+class Clock:
+
+    def __init__(self):
+        self.start_time = time.time()
+        self.pause_time = 0
+        self.timer = 21
+    def pause(self):
+        self.start_pause_time =time.time()
+    def unpause(self):
+        self.stop_pause_time = time.time()
+        self.pause_time += self.stop_pause_time-self.start_pause_time
+    def get_time(self):
+        self.current_time = time.time()
+        return self.timer - (self.current_time-self.start_time-self.pause_time)
+    def reinit(self):
+        self.start_time = time.time()
+        self.pause_time = 0
+        self.timer = 21
+        self.pause()
+
 def game_window(wsize, hsize):      #This function defines the main window
     game.title("My Game")
     global widthscreen
