@@ -72,6 +72,207 @@ class Clock:
         self.timer = 21
         self.pause()
 
+class Bullet(gamesprite):
+    def __init__(self,x,y,r,image):
+        global canvas
+        global game
+        gamesprite.__init__(self,x,y,r,image)
+        self.shot_time = 0
+        self.stop = False
+        if Player.direction == "left":
+            self.shootX = -10
+            self.shootY = 0
+        elif Player.direction == "right":
+            self.shootX = 10
+            self.shootY = 0
+        elif Player.direction == "up":
+            self.shootX = 0
+            self.shootY = -10
+        elif Player.direction == "down":
+            self.shootX = 0
+            self.shootY = +10
+        game.after(20, self.shooting_move)
+
+    def shooting_move(self):
+        global canvas
+        global game
+        global score
+        global scoretxt
+        global end
+        global gamePaused
+        global maxshots
+        global ammotxt
+
+        if gamePaused == False:
+            self.move(self.shootX, self.shootY)
+            self.shot_time += 1
+            if self.shot_time == 180:
+                self.stop = True
+            if end == True:
+                self.stop = True
+            if self.stop == False:
+                try:
+                    for oneenemy in Enemy:
+                        if self.collides(oneenemy):
+                            score = score + 1
+                            game_timer.timer = game_timer.timer + 1
+                            coords = random_enemy()
+                            oneenemy.change_coords(coords[0], coords[1])
+                            canvas.delete(scoretxt)
+                            scoretxt = canvas.create_text(150,50,anchor=N,font=("Purisa",30),text="Score: " + str(int((score))))
+                            self.stop = True
+                            break
+                except IndexError:
+                    pass
+                canvas.update()
+                game.after(10, self.shooting_move)
+            else:
+                self.delete()
+        else:
+            canvas.update()
+            game.after(10, self.shooting_move)
+
+class makeEnemy(gamesprite):
+
+    def __init__(self, x, y, r, image):
+        global canvas
+        gamesprite.__init__(self,x,y,r,image)
+        self.moving = True
+        self.zdirection = random.randint(0,3)
+        self.counter = random.randint(4,10)
+        self.moveEnemy()
+
+    def start(self):
+        self.moving = True
+    def stop(self):
+        self.moving = False
+
+    def moveEnemy(self):
+        global end
+        global score
+        global width
+        global height
+        global endtxt
+        if self.collides(Player):
+            end = True
+            endtxt = canvas.create_text(width//2,height//1.5,anchor=N, font=("Purisa",30),text="Game Over! You killed " + str(score) + " zombies and died")
+            Player.change_coords(width//2, height//2)
+            for oneenemy in Enemy:
+                coords = random_enemy()
+                oneenemy.change_coords(coords[0], coords[1])
+
+        random_time = random.randint(100,200)
+        if self.moving:
+            if self.counter == 0:
+                self.zdirection = random.randint(0,3)
+                self.counter = random.randint(4,10)
+            self.zdistance = random.randint(10,20)
+            game.after(random_time, self.moveEnemy)
+            if self.zdirection == 0:
+                self.move(-self.zdistance,0)
+                self.image_config(image=enemyleft)
+            elif self.zdirection == 1:
+                self.move(+self.zdistance,0)
+                self.image_config(image=enemyright)
+            elif self.zdirection == 2:
+                self.move(0,-self.zdistance)
+                self.image_config(image=enemyup)
+            elif self.zdirection == 3:
+                self.move(0,+self.zdistance)
+                self.image_config(image=enemydown)
+            self.border()
+            self.counter -= 1
+        else:
+            game.after(20,self.moveEnemy)
+
+
+class makePlayer(gamesprite):
+
+    def shoot(self, event):
+        global maxshots
+        global ammotxt
+        global reload_done
+        if gamePaused == False and end == False and maxshots < 10 and reload_done == True:
+            local_coords = canvas.coords(self.shape)
+            if self.direction == "left":
+                Bullets.append(Bullet(local_coords[0]+self.rad, local_coords[1]+self.rad, 10, bulletleft))
+            elif self.direction == "right":
+                Bullets.append(Bullet(local_coords[0]+self.rad, local_coords[1]+self.rad, 10, bulletright))
+            elif self.direction == "up":
+                Bullets.append(Bullet(local_coords[0]+self.rad, local_coords[1]+self.rad, 10, bulletup))
+            elif self.direction == "down":
+                Bullets.append(Bullet(local_coords[0]+self.rad, local_coords[1]+self.rad, 10, bulletdown))
+            maxshots += 1
+            try:
+                canvas.delete(ammotxt)
+            except NameError:
+                pass
+            ammotxt = canvas.create_text(175,100,anchor=N,font=("Purisa",30),text="Ammo: {0}/10".format(10-maxshots))
+
+    def reload_timer(self, event):
+        global reload_done
+        global reloadtxt
+        if reload_done == True and gamePaused == False and end == False:
+            reload_done = False
+            reloadtxt = canvas.create_text(width/2,height/2,anchor=N,font=("Purisa",25),text="Reloading...")
+            game.after(2000, self.reload)
+
+    def reload(self):
+        global maxshots
+        global ammotxt
+        global reload_done
+        global reloadtxt
+        if gamePaused == False:
+            maxshots = 0
+            canvas.delete(ammotxt)
+            ammotxt = canvas.create_text(175,100,anchor=N,font=("Purisa",30),text="Ammo: {0}/10".format(10-maxshots))
+            reload_done = True
+            canvas.delete(reloadtxt)
+        else:
+            game.after(2000, self.reload)
+
+    def __init__(self, x, y, r, image):
+        global canvas
+        gamesprite.__init__(self,x,y,r,image)
+        self.direction = "down"
+        self.velocity = 0
+        canvas.bind("<space>", self.shoot)
+        canvas.bind("<r>", self.reload_timer)
+        canvas.bind("<R>", self.reload_timer)
+        canvas.bind("<KeyPress>", self.keypressed)
+        canvas.bind("<KeyRelease>", self.keyreleased)
+        canvas.focus_set()
+
+    def movePlayer(self):
+        if self.direction == "left":
+            self.move(-self.velocity,0)
+            self.image_config(image=playerleft)
+        elif self.direction == "right":
+            self.move(+self.velocity,0)
+            self.image_config(image=playerright)
+        elif self.direction == "up":
+            self.move(0,-self.velocity)
+            self.image_config(image=playerup)
+        elif self.direction == "down":
+            self.move(0,+self.velocity)
+            self.image_config(image=playerdown)
+        self.border()
+
+    def keypressed(self, event):
+        if event.char == "a" or event.char == "A":
+            self.direction = "left"
+        elif event.char == "d" or event.char == "D":
+            self.direction = "right"
+        elif event.char == "w" or event.char == "W":
+            self.direction = "up"
+        elif event.char == "s" or event.char == "S":
+            self.direction = "down"
+        if event.char in ["w", "a", "s", "d", "W", "A", "S", "D"]:
+            self.velocity = 8
+
+    def keyreleased(self, event):
+        self.velocity = 0
+
 def game_window(wsize, hsize):      #This function defines the main window
     game.title("My Game")
     global widthscreen
@@ -87,6 +288,9 @@ def game_window(wsize, hsize):      #This function defines the main window
 def makeFullscreen():
     game.attributes('-fullscreen',False)     #For fullscreen mode, to swith press F11
     game.bind("<F11>", lambda event: game.attributes("-fullscreen", not game.attributes("-fullscreen")))
+
+def game_loop():
+    pass
 
 game = Tk()
 global widthscreen
@@ -133,4 +337,32 @@ bulletleft = bimgleft.subsample(4, 4)
 bimgright = PhotoImage(file = "images/bulletright.png")
 bulletright = bimgright.subsample(4, 4)
 
+global gamePaused
+global end
+global score
+global zombie_nr
+global maxshots
+global reload_done
+global Player
+global Enemy
+global countdown
+global game_timer
+
+score = 0
+zombie_nr = 6
+maxshots = 0
+gamePaused = False
+end = False
+reload_done = True
+username = None
+countdown = False
+game_timer = Clock()
+game_timer.pause()
+
+Enemy = list()
+Bullets = list()
+
+Player = makePlayer(width/2, height/2, 50, playerdown)
+
+game_loop()
 game.mainloop()
