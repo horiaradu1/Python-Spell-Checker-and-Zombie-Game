@@ -277,7 +277,7 @@ class makePlayer(gamesprite):
         self.velocity = 0
 
 def game_window(wsize, hsize):      #This function defines the main window
-    game.title("My Game")
+    game.title("Zombie Rush Invasion")
     global widthscreen
     global heightscreen
     widthscreen = game.winfo_screenwidth()
@@ -327,8 +327,8 @@ def ready_timer(time, text):
     if time > 0:
         if text != None:
             canvas.delete(text)
-        text = canvas.create_text(width//2,height//1.5,anchor=N, font=("Purisa",40),text="Game resuimg in " + str(time) + " seconds...")
-        game.after(1000, lambda tr=time-1, txt=text: ready_timer(tr, txt))
+        text = canvas.create_text(width//2,height//1.5,anchor=N, font=("Purisa",40),text="Game resuimg in " + str(time) + " ...")
+        game.after(500, lambda tr=time-1, txt=text: ready_timer(tr, txt))
     else:
         canvas.delete(text)
         gamePaused = not gamePaused
@@ -412,19 +412,18 @@ def pausemenu():
     global menu
     menu = menusettings()
     menu.bind("<Escape>", unpausemenu_key)
-    Label(menu,text="Game Title", bg = "green", fg="white").pack()
-    Button(menu,text="Resume Game",command=lambda:pause(None)).pack()
-    Button(menu,text="Restart Game",command=lambda:restart_game()).pack()
-    Button(menu,text="Enter/Change Username",command=lambda: input_user()).pack()
-    Button(menu,text="Save Game",command=lambda: save_game()).pack()
-    Button(menu,text="Load Game",command=lambda: load_game()).pack()
-    Button(menu,text="Leaderboard",command=lambda: show_leaderboard()).pack()
-    Button(menu,text="Exit",command=lambda:exit()).pack()
-    Label(menu,text="W,A,S,D-Move", bg = "green", fg="white").pack()
-    Label(menu,text="Space-Shoot R-Reload", bg = "green", fg="white").pack()
-    Label(menu,text="Esc-Menu P-Pause", bg = "green", fg="white").pack()
-    Label(menu,text="time,score-cheat codes", bg = "green", fg="white").pack()
-    Label(menu,text="boss-Bosskey", bg = "green", fg="white").pack()
+    Label(menu,text="Zombie Rush Invasion", bg = "green", fg="darkred", font=("Purisa",16, "bold")).pack()
+    Button(menu,text="Resume Game",command=lambda:pause(None), activeforeground="darkred", fg="darkred", activebackground="darkgreen", background = "green", font=("Purisa",13, "bold"), pady=4).pack()
+    Button(menu,text="Restart Game",command=lambda:restart_game(), activeforeground="darkred", fg="darkred", activebackground="darkgreen", background = "green", font=("Purisa",13, "bold"), pady=4).pack()
+    Button(menu,text="Enter/Change Username",command=lambda: input_user(), activeforeground="darkred", fg="darkred", activebackground="darkgreen", background = "green", font=("Purisa",11, "bold"), pady=3).pack()
+    Button(menu,text="Save Game",command=lambda: save_game(), activeforeground="darkred", fg="darkred", activebackground="darkgreen", background = "green", font=("Purisa",11, "bold"), pady=3).pack()
+    Button(menu,text="Load Game",command=lambda: load_game(), activeforeground="darkred", fg="darkred", activebackground="darkgreen", background = "green", font=("Purisa",11, "bold"), pady=3).pack()
+    Button(menu,text="Leaderboard",command=lambda: show_leaderboard(), activeforeground="darkred", fg="darkred", activebackground="darkgreen", background = "green", font=("Purisa",11, "bold"), pady=3).pack()
+    Button(menu,text="Exit",command=lambda: exit(), activeforeground="darkred", fg="darkred", activebackground="darkgreen", background = "green", font=("Purisa",12, "bold"), pady=4).pack()
+    Label(menu,text="W,A,S,D-Move, Space-Shoot R-Reload", bg = "green", fg="darkred", font=("Purisa",10, "bold")).pack()
+    Label(menu,text="Esc-Menu P-Pause F11-Fullscreen", bg = "green", fg="darkred", font=("Purisa",10, "bold")).pack()
+    Label(menu,text="time/score-cheatcodes, boss-Bosskey", bg = "green", fg="darkred", font=("Purisa",10, "bold")).pack()
+    Label(menu,text="To access a save file you must use the same \n username with which the save file was made", bg = "green", fg="darkred", font=("Purisa",10, "bold")).pack()
 
 def restart_game():
     restart_vars()
@@ -483,18 +482,17 @@ def mainmenu():
     end = True
     gamePaused=True
     menu = menusettings()
-    Label(menu,text="Game Title", bg = "green", fg="white").pack()
-    Label(menu,text="Kill as many zombies within the time \n 1 additional second for each zombie kill", bg = "green", fg="white").pack()
-    Button(menu,text="Start Game",command=lambda: reset_game()).pack()
-    Button(menu,text="Enter/Change Username",command=lambda: input_user()).pack()
-    Button(menu,text="Load Game",command=lambda: load_game()).pack()
-    Button(menu,text="Leaderboard",command=lambda: show_leaderboard()).pack()
-    Button(menu,text="Exit",command=lambda: exit()).pack()
-    Label(menu,text="W,A,S,D-Move", bg = "green", fg="white").pack()
-    Label(menu,text="Space-Shoot R-Reload", bg = "green", fg="white").pack()
-    Label(menu,text="Esc-Menu P-Pause", bg = "green", fg="white").pack()
-    Label(menu,text="time,score-cheat codes", bg = "green", fg="white").pack()
-    Label(menu,text="boss-Bosskey F11-Fullscreen", bg = "green", fg="white").pack()
+    Label(menu,text="Zombie Rush Invasion", bg = "green", fg="darkred", font=("Purisa",16, "bold")).pack()
+    Label(menu,text="Kill as many zombies within the time \n 1 additional second for each zombie kill", bg = "green", fg="darkred", font=("Purisa",10, "bold")).pack()
+    Button(menu,text="Start Game",command=lambda: reset_game(), activeforeground="darkred", fg="darkred", activebackground="darkgreen", background = "green", font=("Purisa",16, "bold"), pady=7).pack()
+    Button(menu,text="Enter/Change Username",command=lambda: input_user(), activeforeground="darkred", fg="darkred", activebackground="darkgreen", background = "green", font=("Purisa",11, "bold"), pady=3).pack()
+    Button(menu,text="Load Game",command=lambda: load_game(), activeforeground="darkred", fg="darkred", activebackground="darkgreen", background = "green", font=("Purisa",11, "bold"), pady=3).pack()
+    Button(menu,text="Leaderboard",command=lambda: show_leaderboard(), activeforeground="darkred", fg="darkred", activebackground="darkgreen", background = "green", font=("Purisa",11, "bold"), pady=3).pack()
+    Button(menu,text="Exit",command=lambda: exit(), activeforeground="darkred", fg="darkred", activebackground="darkgreen", background = "green", font=("Purisa",14, "bold"), pady=5).pack()
+    Label(menu,text="W,A,S,D-Move, Space-Shoot R-Reload", bg = "green", fg="darkred", font=("Purisa",10, "bold")).pack()
+    Label(menu,text="Esc-Menu P-Pause F11-Fullscreen", bg = "green", fg="darkred", font=("Purisa",10, "bold")).pack()
+    Label(menu,text="time/score-cheatcodes, boss-Bosskey", bg = "green", fg="darkred", font=("Purisa",10, "bold")).pack()
+    Label(menu,text="To access a save file you must use the same \n username with which the save file was made", bg = "green", fg="darkred", font=("Purisa",10, "bold")).pack()
 
 def input_user():
     global menu
@@ -507,12 +505,12 @@ def input_user():
     user_menu.grab_set()
     user_menu.focus_force()
     user_menu.transient(game)
-    user_menu.geometry("300x150+{0}+{1}".format(width//2-150,height//2-75))
+    user_menu.geometry("300x180+{0}+{1}".format(width//2-150,height//2-90-100))
     name = StringVar()
-    Label(user_menu,text="Input your name below", bg = "green", fg="white").pack()
+    Label(user_menu,text="Input your name below", bg = "green", fg="darkred", font=("Purisa",10, "bold")).pack()
     Entry(user_menu, textvariable=name).pack()
-    Button(user_menu,text="OK",command=lambda value=name: name_change(value)).pack()
-    Button(user_menu,text="Back",command=lambda menu=user_menu: backtomain(menu)).pack()
+    Button(user_menu,text="OK",command=lambda value=name: name_change(value), activeforeground="darkred", fg="darkred", background = "green", font=("Purisa",14, "bold"), pady=5).pack()
+    Button(user_menu,text="Back",command=lambda menu=user_menu: backtomain(menu), activeforeground="darkred", fg="darkred", background = "green", font=("Purisa",12, "bold"), pady=4).pack()
 
 def name_change(value):
     global username
@@ -534,7 +532,7 @@ def menusettings():
     menu.grab_set()
     menu.focus_force()
     menu.transient(game)
-    menu.geometry("300x350+{0}+{1}".format(widthscreen//2-150,heightscreen//2-175-100))
+    menu.geometry("400x460+{0}+{1}".format(widthscreen//2-200,heightscreen//2-230-100))
     return menu
 
 def save_game():
@@ -582,10 +580,10 @@ def show_leaderboard():
     leader_menu.grab_set()
     leader_menu.focus_force()
     leader_menu.transient(game)
-    leader_menu.geometry("300x300+{0}+{1}".format(width//2-150,height//2-150))
-    Button(leader_menu,text="Back",command=lambda menu=leader_menu: backtomain(menu)).pack()
+    leader_menu.geometry("300x350+{0}+{1}".format(width//2-150,height//2-175-100))
+    Button(leader_menu,text="Back",command=lambda menu=leader_menu: backtomain(menu), activeforeground="darkred", fg="darkred", background = "green", font=("Purisa",12, "bold"), pady=4).pack()
     for key, var in leaderboard.items():
-        Label(leader_menu,text="Score: {1} from {0}".format(key,var), bg = "green", fg="white").pack()
+        Label(leader_menu,text="Score: {1} from {0}".format(key,var), bg = "green", fg="darkred", font=("Purisa",12)).pack()
 
 
 def dump_leaderboard():
@@ -639,6 +637,8 @@ widthscreen = game.winfo_screenwidth()
 heightscreen = game.winfo_screenheight()
 width = widthscreen
 height = heightscreen
+
+
 
 game = game_window(width, height)
 canvas = Canvas(game, bg = "darkgreen", relief = "ridge", bd = 20)
