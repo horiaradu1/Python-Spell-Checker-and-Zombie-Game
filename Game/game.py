@@ -571,11 +571,30 @@ def load_game():
         pass
 
 def show_leaderboard():
-    pass
+    global menu
+    global leader_menu
+    global leaderboard
+    global game
+    leaderboard = pickle.load(open("Leaderboard.pkl", "rb"))
+    menu.destroy()
+    leader_menu = Toplevel(game, bg = "green", relief = "ridge", bd = 10)
+    leader_menu.wm_attributes("-type", "splash")
+    leader_menu.grab_set()
+    leader_menu.focus_force()
+    leader_menu.transient(game)
+    leader_menu.geometry("300x300+{0}+{1}".format(width//2-150,height//2-150))
+    Button(leader_menu,text="Back",command=lambda menu=leader_menu: backtomain(menu)).pack()
+    for key, var in leaderboard.items():
+        Label(leader_menu,text="Score: {1} from {0}".format(key,var), bg = "green", fg="white").pack()
 
 
 def dump_leaderboard():
-    pass
+    global leaderboard
+    global username
+    if username != None:
+        leaderboard[username]=score
+        leaderboard = dict(sorted(leaderboard.items(), key=lambda x:x[1], reverse=True))
+        pickle.dump(leaderboard,open("Leaderboard.pkl", "wb"))
 
 def bosskey(event):
     global boss_menu
@@ -600,10 +619,16 @@ def bossleft(event):
     boss_menu.destroy()
 
 def cheattime(event):
-    pass
+    global timer
+    game_timer.timer = game_timer.timer + 100
 
 def cheatscore(event):
-    pass
+    global canvas
+    global score
+    global scoretxt
+    score = score + 50
+    canvas.delete(scoretxt)
+    scoretxt = canvas.create_text(150,50,anchor=N,font=("Purisa",30),text="Score: " + str(int((score))))
 
 game = Tk()
 global widthscreen
@@ -667,6 +692,11 @@ global Player
 global Enemy
 global countdown
 global game_timer
+
+try:
+    leaderboard = pickle.load(open("Leaderboard.pkl", "rb"))
+except FileNotFoundError:
+    leaderboard = {}
 
 score = 0
 zombie_nr = 6
