@@ -537,6 +537,74 @@ def menusettings():
     menu.geometry("300x350+{0}+{1}".format(widthscreen//2-150,heightscreen//2-175-100))
     return menu
 
+def save_game():
+    global score
+    global game_timer
+    global maxshots
+    global username
+    save_list = []
+    save_list.append(score)
+    save_list.append(game_timer)
+    save_list.append(maxshots)
+    pickle.dump(save_list,open("savefiles/save_game_{0}.pkl".format(username), "wb"))
+
+def load_game():
+    global score
+    global scoretxt
+    global timertxt
+    global game_timer
+    global maxshots
+    global username
+    global Bullets
+    try:
+        load_list = pickle.load(open("savefiles/save_game_{0}.pkl".format(username), "rb"))
+        score = load_list[0]
+        game_timer = load_list[1]
+        maxshots = load_list[2]
+        for onebullet in Bullets:
+            onebullet.delete()
+        Player.change_coords(width//2, height//2)
+        for oneenemy in Enemy:
+            coords = random_enemy()
+            oneenemy.change_coords(coords[0], coords[1])
+    except FileNotFoundError:
+        pass
+
+def show_leaderboard():
+    pass
+
+
+def dump_leaderboard():
+    pass
+
+def bosskey(event):
+    global boss_menu
+    global gamePaused
+    global widthscreen
+    global heightscreen
+    pause(None)
+    boss_menu = Toplevel()
+    boss_menu.attributes("-topmost",True)
+    boss_menu.attributes("-fullscreen",True)
+    boss_menu.attributes("-type","splash")
+    boss_menu.bind("boss", bossleft)
+    boss_menu.focus_set()
+    boss_canvas = Canvas(boss_menu)
+    boss_canvas.create_image(widthscreen//2, 10, image = bossimg, anchor = N)
+    boss_canvas.pack(fill = "both", expand = True)
+    gamePaused = True
+
+def bossleft(event):
+    global boss_menu
+    pause(None)
+    boss_menu.destroy()
+
+def cheattime(event):
+    pass
+
+def cheatscore(event):
+    pass
+
 game = Tk()
 global widthscreen
 global heightscreen
@@ -585,9 +653,9 @@ bulletright = bimgright.subsample(4, 4)
 game.bind("<p>", pause)
 game.bind("<P>", pause)
 game.bind("<Escape>", pausemenu_key)
-#game.bind("time", cheattime)
-#game.bind("score", cheatscore)
-#game.bind("boss", bosskey)
+game.bind("time", cheattime)
+game.bind("score", cheatscore)
+game.bind("boss", bosskey)
 
 global gamePaused
 global end
