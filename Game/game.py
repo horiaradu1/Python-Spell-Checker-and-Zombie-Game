@@ -161,7 +161,9 @@ class makeEnemy(gamesprite):
             for oneenemy in Enemy:
                 coords = random_enemy()
                 oneenemy.change_coords(coords[0], coords[1])
-
+            dump_leaderboard()
+            restart_vars()
+            mainmenu()
         random_time = random.randint(100,200)
         if self.moving:
             if self.counter == 0:
@@ -325,8 +327,8 @@ def ready_timer(time, text):
     if time > 0:
         if text != None:
             canvas.delete(text)
-        text = canvas.create_text(width//2,height//1.5,anchor=N, font=("Purisa",40),text="Game resuimg in " + str(time) + " seconds...")
-        game.after(1000, lambda tr=time-1, txt=text: ready_timer(tr, txt))
+        text = canvas.create_text(width//2,height//1.5,anchor=N, font=("Purisa",40),text="Game resuimg in " + str(time) + " ...")
+        game.after(500, lambda tr=time-1, txt=text: ready_timer(tr, txt))
     else:
         canvas.delete(text)
         gamePaused = not gamePaused
@@ -391,6 +393,119 @@ def random_enemy():
         enemy_height = random.randint(100,height-100)
     return (enemy_width, enemy_height)
 
+def pausemenu_key(event):
+    global gamePaused
+    global end
+    if not end:
+        if not gamePaused:
+            pause(None)
+            pausemenu()
+
+def unpausemenu_key(event):
+    global menu
+    if not end:
+        if gamePaused:
+            pause(None)
+            menu.destroy()
+
+def pausemenu():
+    global menu
+    menu = menusettings()
+    menu.bind("<Escape>", unpausemenu_key)
+    Label(menu,text="Game Title", bg = "green", fg="white").pack()
+    Button(menu,text="Resume Game",command=lambda:pause(None)).pack()
+    Button(menu,text="Restart Game",command=lambda:restart_game()).pack()
+    Button(menu,text="Enter/Change Username",command=lambda: input_user()).pack()
+    Button(menu,text="Save Game",command=lambda: save_game()).pack()
+    Button(menu,text="Load Game",command=lambda: load_game()).pack()
+    Button(menu,text="Leaderboard",command=lambda: show_leaderboard()).pack()
+    Button(menu,text="Exit",command=lambda:exit()).pack()
+    Label(menu,text="W,A,S,D-Move", bg = "green", fg="white").pack()
+    Label(menu,text="Space-Shoot R-Reload", bg = "green", fg="white").pack()
+    Label(menu,text="Esc-Menu P-Pause", bg = "green", fg="white").pack()
+    Label(menu,text="time,score-cheat codes", bg = "green", fg="white").pack()
+    Label(menu,text="boss-Bosskey", bg = "green", fg="white").pack()
+
+def restart_game():
+    restart_vars()
+    reset_game()
+
+def restart_vars():
+    global score
+    global maxshots
+    global game_timer
+    score = 0
+    maxshots = 0
+    game_timer.reinit()
+    game_timer.pause()
+
+def reset_game():
+    global menu
+    global Player
+    global score
+    global maxshots
+    global gamePaused
+    global Bullets
+    global end
+    global Enemy
+    global ammotxt
+    global scoretxt
+    global pausetxt
+
+    try:
+        canvas.delete(ammotxt)
+        canvas.delete(scoretxt)
+        canvas.delete(endtxt)
+    except NameError:
+        pass
+    try:
+        canvas.delete(pausetxt)
+    except NameError:
+        pass
+
+    ammotxt = canvas.create_text(175,100,anchor=N,font=("Purisa",30),text="Ammo: {0}/10".format(10-maxshots))
+    scoretxt = canvas.create_text(150,50,anchor=N,font=("Purisa",30),text="Score: " + str(int((score))))
+    for onebullet in Bullets:
+        onebullet.delete()
+    Player.change_coords(width//2, height//2)
+    for oneenemy in Enemy:
+        coords = random_enemy()
+        oneenemy.change_coords(coords[0], coords[1])
+    menu.destroy()
+    end = False
+    pause(None)
+
+def mainmenu():
+    global menu
+    global gamePaused
+    global game
+    global end
+    end = True
+    gamePaused=True
+    menu = menusettings()
+    Label(menu,text="Game Title", bg = "green", fg="white").pack()
+    Label(menu,text="Kill as many zombies within the time \n 1 additional second for each zombie kill", bg = "green", fg="white").pack()
+    Button(menu,text="Start Game",command=lambda: reset_game()).pack()
+    Button(menu,text="Enter/Change Username",command=lambda: input_user()).pack()
+    Button(menu,text="Load Game",command=lambda: load_game()).pack()
+    Button(menu,text="Leaderboard",command=lambda: show_leaderboard()).pack()
+    Button(menu,text="Exit",command=lambda: exit()).pack()
+    Label(menu,text="W,A,S,D-Move", bg = "green", fg="white").pack()
+    Label(menu,text="Space-Shoot R-Reload", bg = "green", fg="white").pack()
+    Label(menu,text="Esc-Menu P-Pause", bg = "green", fg="white").pack()
+    Label(menu,text="time,score-cheat codes", bg = "green", fg="white").pack()
+    Label(menu,text="boss-Bosskey F11-Fullscreen", bg = "green", fg="white").pack()
+
+def menusettings():
+    menu = Toplevel(game, bg = "green", relief = "ridge", bd = 10)
+    #menu.attributes("-topmost", True)
+    menu.wm_attributes("-type", "splash")
+    menu.grab_set()
+    menu.focus_force()
+    menu.transient(game)
+    menu.geometry("300x350+{0}+{1}".format(widthscreen//2-150,heightscreen//2-175-100))
+    return menu
+
 game = Tk()
 global widthscreen
 global heightscreen
@@ -436,6 +551,13 @@ bulletleft = bimgleft.subsample(4, 4)
 bimgright = PhotoImage(file = "images/bulletright.png")
 bulletright = bimgright.subsample(4, 4)
 
+game.bind("<p>", pause)
+game.bind("<P>", pause)
+game.bind("<Escape>", pausemenu_key)
+#game.bind("time", cheattime)
+#game.bind("score", cheatscore)
+#game.bind("boss", bosskey)
+
 global gamePaused
 global end
 global score
@@ -462,6 +584,10 @@ Enemy = list()
 Bullets = list()
 
 Player = makePlayer(width/2, height/2, 50, playerdown)
+for _ in range(zombie_nr):
+    coords = random_enemy()
+    Enemy.append(makeEnemy(coords[0], coords[1], 50, enemyup))
 
+mainmenu()
 game_loop()
 game.mainloop()
