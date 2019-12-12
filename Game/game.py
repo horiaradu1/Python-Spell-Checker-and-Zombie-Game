@@ -103,6 +103,7 @@ class Bullet(gamesprite):
         global gamePaused
         global maxshots
         global ammotxt
+        global extra_zombies
 
         if gamePaused == False:
             self.move(self.shootX, self.shootY)
@@ -122,7 +123,13 @@ class Bullet(gamesprite):
                             canvas.delete(scoretxt)
                             scoretxt = canvas.create_text(150,50,anchor=N,font=("Purisa",30),text="Score: " + str(int((score))))
                             self.stop = True
+                            difficulty = random.randint(0,10)
+                            if difficulty <= 3:
+                                coords = random_enemy()
+                                Enemy.append(makeEnemy(coords[0], coords[1], 50, enemyup))
+                                extra_zombies += 1
                             break
+
                 except IndexError:
                     pass
                 canvas.update()
@@ -154,40 +161,43 @@ class makeEnemy(gamesprite):
         global width
         global height
         global endtxt
-        if self.collides(Player):
-            end = True
-            endtxt = canvas.create_text(width//2,height//1.5,anchor=N, font=("Purisa",30),text="Game Over! You killed " + str(score) + " zombies and died")
-            Player.change_coords(width//2, height//2)
-            for oneenemy in Enemy:
-                coords = random_enemy()
-                oneenemy.change_coords(coords[0], coords[1])
-            dump_leaderboard()
-            restart_vars()
-            mainmenu()
-        random_time = random.randint(100,200)
-        if self.moving:
-            if self.counter == 0:
-                self.zdirection = random.randint(0,3)
-                self.counter = random.randint(4,10)
-            self.zdistance = random.randint(10,20)
-            game.after(random_time, self.moveEnemy)
-            if self.zdirection == 0:
-                self.move(-self.zdistance,0)
-                self.image_config(image=enemyleft)
-            elif self.zdirection == 1:
-                self.move(+self.zdistance,0)
-                self.image_config(image=enemyright)
-            elif self.zdirection == 2:
-                self.move(0,-self.zdistance)
-                self.image_config(image=enemyup)
-            elif self.zdirection == 3:
-                self.move(0,+self.zdistance)
-                self.image_config(image=enemydown)
-            self.border()
-            self.counter -= 1
-        else:
-            game.after(20,self.moveEnemy)
+        global Enemy
+        try:
+            if self.collides(Player):
+                end = True
+                endtxt = canvas.create_text(width//2,height//1.5,anchor=N, font=("Purisa",30),text="Game Over! You killed " + str(score) + " zombies and died")
+                Player.change_coords(width//2, height//2)
+                for oneenemy in Enemy:
+                    oneenemy.delete()
+                dump_leaderboard()
+                restart_vars()
+                mainmenu()
+            random_time = random.randint(100,150)
+            if self.moving:
+                if self.counter == 0:
+                    self.zdirection = random.randint(0,3)
+                    self.counter = random.randint(3,7)
+                self.zdistance = random.randint(10,20)
 
+                if self.zdirection == 0:
+                    self.move(-self.zdistance,0)
+                    self.image_config(image=enemyleft)
+                elif self.zdirection == 1:
+                    self.move(+self.zdistance,0)
+                    self.image_config(image=enemyright)
+                elif self.zdirection == 2:
+                    self.move(0,-self.zdistance)
+                    self.image_config(image=enemyup)
+                elif self.zdirection == 3:
+                    self.move(0,+self.zdistance)
+                    self.image_config(image=enemydown)
+                self.border()
+                self.counter -= 1
+                game.after(random_time, self.moveEnemy)
+            else:
+                game.after(20,self.moveEnemy)
+        except IndexError:
+            pass
 
 class makePlayer(gamesprite):
 
@@ -198,13 +208,13 @@ class makePlayer(gamesprite):
         if gamePaused == False and end == False and maxshots < 10 and reload_done == True:
             local_coords = canvas.coords(self.shape)
             if self.direction == "left":
-                Bullets.append(Bullet(local_coords[0]+self.rad, local_coords[1]+self.rad, 10, bulletleft))
+                Bullets.append(Bullet(local_coords[0]-15, local_coords[1]+self.rad-15, 10, bulletleft))
             elif self.direction == "right":
-                Bullets.append(Bullet(local_coords[0]+self.rad, local_coords[1]+self.rad, 10, bulletright))
+                Bullets.append(Bullet(local_coords[0]+(2*self.rad)+15, local_coords[1]+self.rad+15, 10, bulletright))
             elif self.direction == "up":
-                Bullets.append(Bullet(local_coords[0]+self.rad, local_coords[1]+self.rad, 10, bulletup))
+                Bullets.append(Bullet(local_coords[0]+self.rad+15, local_coords[1]-15, 10, bulletup))
             elif self.direction == "down":
-                Bullets.append(Bullet(local_coords[0]+self.rad, local_coords[1]+self.rad, 10, bulletdown))
+                Bullets.append(Bullet(local_coords[0]+self.rad-15, local_coords[1]+(2*self.rad)+15, 10, bulletdown))
             maxshots += 1
             try:
                 canvas.delete(ammotxt)
@@ -363,8 +373,7 @@ def game_loop():
             endtxt = canvas.create_text(width//2,height//1.5,anchor=N, font=("Purisa",30),text="Time is up! You killed " + str(score) + " zombies")
             Player.change_coords(width//2, height//2)
             for oneenemy in Enemy:
-                coords = random_enemy()
-                oneenemy.change_coords(coords[0], coords[1])
+                oneenemy.delete()
             dump_leaderboard()
             restart_vars()
             mainmenu()
@@ -426,6 +435,9 @@ def pausemenu():
     Label(menu,text="To access a save file you must use the same \n username with which the save file was made", bg = "green", fg="darkred", font=("Purisa",10, "bold")).pack()
 
 def restart_game():
+    global Enemy
+    for oneenemy in Enemy:
+        oneenemy.delete()
     restart_vars()
     reset_game()
 
@@ -433,8 +445,10 @@ def restart_vars():
     global score
     global maxshots
     global game_timer
+    global extra_zombies
     score = 0
     maxshots = 0
+    extra_zombies = 0
     game_timer.reinit()
     game_timer.pause()
 
@@ -450,6 +464,7 @@ def reset_game():
     global ammotxt
     global scoretxt
     global pausetxt
+    global extra_zombies
 
     try:
         canvas.delete(ammotxt)
@@ -467,9 +482,15 @@ def reset_game():
     for onebullet in Bullets:
         onebullet.delete()
     Player.change_coords(width//2, height//2)
-    for oneenemy in Enemy:
+    Enemy.clear()
+    Bullets.clear()
+    for _ in range(zombie_nr):
         coords = random_enemy()
-        oneenemy.change_coords(coords[0], coords[1])
+        Enemy.append(makeEnemy(coords[0], coords[1], 50, enemyup))
+    for _ in range(extra_zombies):
+        coords = random_enemy()
+        Enemy.append(makeEnemy(coords[0], coords[1], 50, enemyup))
+    extra_zombies = 0
     menu.destroy()
     end = False
     pause(None)
@@ -540,10 +561,12 @@ def save_game():
     global game_timer
     global maxshots
     global username
+    global extra_zombies
     save_list = []
     save_list.append(score)
     save_list.append(game_timer)
     save_list.append(maxshots)
+    save_list.append(extra_zombies)
     pickle.dump(save_list,open("savefiles/save_game_{0}.pkl".format(username), "wb"))
 
 def load_game():
@@ -554,17 +577,31 @@ def load_game():
     global maxshots
     global username
     global Bullets
+    global extra_zombies
+    global zombie_nr
     try:
         load_list = pickle.load(open("savefiles/save_game_{0}.pkl".format(username), "rb"))
         score = load_list[0]
         game_timer = load_list[1]
         maxshots = load_list[2]
+        extra_zombies = load_list[3]
         for onebullet in Bullets:
             onebullet.delete()
         Player.change_coords(width//2, height//2)
         for oneenemy in Enemy:
             coords = random_enemy()
             oneenemy.change_coords(coords[0], coords[1])
+        if end == False:
+            for one in Enemy:
+                one.delete()
+            Enemy.clear()
+            for _ in range(zombie_nr):
+                coords = random_enemy()
+                Enemy.append(makeEnemy(coords[0], coords[1], 50, enemyup))
+            for _ in range(extra_zombies):
+                coords = random_enemy()
+                Enemy.append(makeEnemy(coords[0], coords[1], 50, enemyup))
+
     except FileNotFoundError:
         pass
 
@@ -583,7 +620,7 @@ def show_leaderboard():
     leader_menu.geometry("300x350+{0}+{1}".format(width//2-150,height//2-175-100))
     Button(leader_menu,text="Back",command=lambda menu=leader_menu: backtomain(menu), activeforeground="darkred", fg="darkred", background = "green", font=("Purisa",12, "bold"), pady=4).pack()
     for key, var in leaderboard.items():
-        Label(leader_menu,text="Score: {1} from {0}".format(key,var), bg = "green", fg="darkred", font=("Purisa",12)).pack()
+        Label(leader_menu,text="Score: {1} from {0}".format(key,var), bg = "green", fg="darkred", font=("Purisa",12, "bold")).pack()
 
 
 def dump_leaderboard():
@@ -685,13 +722,13 @@ game.bind("boss", bosskey)
 global gamePaused
 global end
 global score
-global zombie_nr
 global maxshots
 global reload_done
 global Player
 global Enemy
 global countdown
 global game_timer
+global extra_zombies
 
 try:
     leaderboard = pickle.load(open("Leaderboard.pkl", "rb"))
@@ -699,23 +736,22 @@ except FileNotFoundError:
     leaderboard = {}
 
 score = 0
-zombie_nr = 6
+zombie_nr = 4
 maxshots = 0
 gamePaused = False
 end = False
 reload_done = True
 username = None
 countdown = False
+extra_zombies = 0
 game_timer = Clock()
 game_timer.pause()
 
 Enemy = list()
 Bullets = list()
 
-Player = makePlayer(width/2, height/2, 50, playerdown)
-for _ in range(zombie_nr):
-    coords = random_enemy()
-    Enemy.append(makeEnemy(coords[0], coords[1], 50, enemyup))
+Player = makePlayer(width/2, height/2, 45, playerdown)
+
 
 mainmenu()
 game_loop()
