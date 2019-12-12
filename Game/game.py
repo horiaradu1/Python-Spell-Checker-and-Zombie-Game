@@ -327,8 +327,8 @@ def ready_timer(time, text):
     if time > 0:
         if text != None:
             canvas.delete(text)
-        text = canvas.create_text(width//2,height//1.5,anchor=N, font=("Purisa",40),text="Game resuimg in " + str(time) + " ...")
-        game.after(500, lambda tr=time-1, txt=text: ready_timer(tr, txt))
+        text = canvas.create_text(width//2,height//1.5,anchor=N, font=("Purisa",40),text="Game resuimg in " + str(time) + " seconds...")
+        game.after(1000, lambda tr=time-1, txt=text: ready_timer(tr, txt))
     else:
         canvas.delete(text)
         gamePaused = not gamePaused
@@ -495,6 +495,37 @@ def mainmenu():
     Label(menu,text="Esc-Menu P-Pause", bg = "green", fg="white").pack()
     Label(menu,text="time,score-cheat codes", bg = "green", fg="white").pack()
     Label(menu,text="boss-Bosskey F11-Fullscreen", bg = "green", fg="white").pack()
+
+def input_user():
+    global menu
+    global user_menu
+    global game
+    global username
+    menu.destroy()
+    user_menu = Toplevel(game, bg = "green", relief = "ridge", bd = 10)
+    user_menu.wm_attributes("-type", "splash")
+    user_menu.grab_set()
+    user_menu.focus_force()
+    user_menu.transient(game)
+    user_menu.geometry("300x150+{0}+{1}".format(width//2-150,height//2-75))
+    name = StringVar()
+    Label(user_menu,text="Input your name below", bg = "green", fg="white").pack()
+    Entry(user_menu, textvariable=name).pack()
+    Button(user_menu,text="OK",command=lambda value=name: name_change(value)).pack()
+    Button(user_menu,text="Back",command=lambda menu=user_menu: backtomain(menu)).pack()
+
+def name_change(value):
+    global username
+    global user_menu
+    username = value.get()
+    backtomain(user_menu)
+
+def backtomain(menu):
+    menu.destroy()
+    if end:
+        mainmenu()
+    else:
+        pausemenu()
 
 def menusettings():
     menu = Toplevel(game, bg = "green", relief = "ridge", bd = 10)
