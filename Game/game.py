@@ -212,7 +212,7 @@ class makeEnemy(gamesprite):  # Class for each enemy
         gamesprite.__init__(self, x, y, r, image)
         self.moving = True
         self.zdirection = random.randint(0, 3)
-        self.counter = random.randint(4, 10)
+        self.counter = random.randint(5, 10)
         self.moveEnemy()
 
     def start(self):  # Starts it moving
@@ -248,8 +248,8 @@ class makeEnemy(gamesprite):  # Class for each enemy
             if self.moving:  # Then moves it randomly
                 if self.counter == 0:
                     self.zdirection = random.randint(0, 3)
-                    self.counter = random.randint(3, 7)
-                self.zdistance = random.randint(10, 20)
+                    self.counter = random.randint(5, 10)
+                self.zdistance = random.randint(8, 12)
 
                 if self.zdirection == 0:
                     self.move(-self.zdistance, 0)
