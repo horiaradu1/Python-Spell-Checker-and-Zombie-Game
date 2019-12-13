@@ -529,8 +529,8 @@ def input_user():               #Function that creats the menu in which the user
     name = StringVar()
     Label(user_menu,text="Input your name below", bg = "green", fg="darkred", font=("Purisa",10, "bold")).pack()
     Entry(user_menu, textvariable=name).pack()
-    Button(user_menu,text="OK",command=lambda value=name: name_change(value), activeforeground="darkred", fg="darkred", background = "green", font=("Purisa",14, "bold"), pady=5).pack()
-    Button(user_menu,text="Back",command=lambda menu=user_menu: backtomain(menu), activeforeground="darkred", fg="darkred", background = "green", font=("Purisa",12, "bold"), pady=4).pack()
+    Button(user_menu,text="OK",command=lambda value=name: name_change(value), activeforeground="darkred", fg="darkred", activebackground="darkgreen", background = "green", font=("Purisa",14, "bold"), pady=5).pack()
+    Button(user_menu,text="Back",command=lambda menu=user_menu: backtomain(menu), activeforeground="darkred", fg="darkred", activebackground="darkgreen", background = "green", font=("Purisa",12, "bold"), pady=4).pack()
 
 def name_change(value):          #Function that gets the username and updates it
     global username
@@ -617,7 +617,7 @@ def show_leaderboard():         #Function that displays the leaderboard
     leader_menu.focus_force()
     leader_menu.transient(game)
     leader_menu.geometry("300x350+{0}+{1}".format(width//2-150,height//2-175-100))
-    Button(leader_menu,text="Back",command=lambda menu=leader_menu: backtomain(menu), activeforeground="darkred", fg="darkred", background = "green", font=("Purisa",12, "bold"), pady=4).pack()
+    Button(leader_menu,text="Back",command=lambda menu=leader_menu: backtomain(menu), activeforeground="darkred", fg="darkred", activebackground="darkgreen", background = "green", font=("Purisa",12, "bold"), pady=4).pack()
     for key, var in leaderboard.items():
         Label(leader_menu,text="Score: {1} from {0}".format(key,var), bg = "green", fg="darkred", font=("Purisa",12, "bold")).pack()
 
@@ -696,13 +696,13 @@ imgright = PhotoImage(file = "images/playerright.png")
 playerright = imgright.subsample(3, 3)
 
 eimgup = PhotoImage(file = "images/enemyup.png")
-enemyup = eimgup.subsample(4, 4)
+enemyup = eimgup.subsample(2, 2)
 eimgdown = PhotoImage(file = "images/enemydown.png")
-enemydown = eimgdown.subsample(4, 4)
+enemydown = eimgdown.subsample(2, 2)
 eimgleft = PhotoImage(file = "images/enemyleft.png")
-enemyleft = eimgleft.subsample(4, 4)
+enemyleft = eimgleft.subsample(2, 2)
 eimgright = PhotoImage(file = "images/enemyright.png")
-enemyright = eimgright.subsample(4, 4)
+enemyright = eimgright.subsample(2, 2)
 
 bimgup = PhotoImage(file = "images/bulletup.png")
 bulletup = bimgup.subsample(4, 4)

@@ -20,3 +20,9 @@ Note: To access a specific save file you have to use the same username with whic
 
 I hope you will have fun
 Thanks for your attention and also thank you very much for playing!!
+
+
+Images I used are as following:
+For the player: https://opengameart.org/content/animated-top-down-survivor-player
+For the zombies: https://opengameart.org/content/animated-top-down-zombie
+For the bullets: http://pixelartmaker.com
