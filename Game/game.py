@@ -4,47 +4,47 @@ import time
 import math
 import pickle
 
-class gamesprite:
-    def __init__(self, x, y, r, image):
+class gamesprite:                       #Class for every object in the game
+    def __init__(self, x, y, r, image):     #Function to initialize it, both its shape (circle) and texture (image on top of the circle)
         global canvas
         self.rad = r
         self.shape = canvas.create_oval(x-r, y-r, x+r, y+r, outline = "darkgreen")
         self.texture = canvas.create_image(x, y, image = image, anchor=CENTER)
-    def move(self, x, y):
+    def move(self, x, y):           #Function to move the game object/sprite
         global canvas
         canvas.move(self.shape, x, y)
         canvas.move(self.texture, x, y)
         canvas.focus(self.texture)
-    def change_coords(self, x, y):
+    def change_coords(self, x, y):          #Function to relocate the object
         global canvas
         canvas.coords(self.shape, x-self.rad, y-self.rad, x+self.rad, y+self.rad)
         canvas.coords(self.texture, x, y)
         canvas.focus(self.texture)
-    def delete(self):
+    def delete(self):               #Function to delete the object
         global canvas
         canvas.delete(self.shape)
         canvas.delete(self.texture)
-    def distance_from(self, target):
+    def distance_from(self, target):            #Function to get the distance from the object to anything
         global canvas
         local_coords = canvas.coords(self.shape)
         local_coords = [(local_coords[0]+local_coords[2])//2,(local_coords[1]+local_coords[3])//2]
         target_coords = canvas.coords(target.shape)
         target_coords = [(target_coords[0]+target_coords[2])//2,(target_coords[1]+target_coords[3])//2]
         return math.sqrt((local_coords[0]-target_coords[0])**2+(local_coords[1]-target_coords[1])**2)
-    def collides(self,target):
+    def collides(self,target):                  #Function to check for collision
         global canvas
         distance = self.distance_from(target)
         if distance < self.rad+target.rad:
             return True
         return False
-    def image_config(self,image):
+    def image_config(self,image):               #Function to change the image of a object
         global canvas
         canvas.delete(self.texture)
         local_coords = canvas.coords(self.shape)
         self.texture = canvas.create_image(local_coords[0]+self.rad, local_coords[1]+self.rad, image = image, anchor=CENTER)
-    def border(self):
+    def border(self):               #Function to check if the object hits the border and move it to the oposite side
         local_coords = canvas.coords(self.shape)
-        if local_coords[1] < 0:  #UP
+        if local_coords[1] < 0:     #UP
             self.move(0,height-100)
         elif local_coords[3] > height:   #DOWN
             self.move(0,-height+100)
@@ -53,28 +53,28 @@ class gamesprite:
         elif local_coords[0] < 0:    #LEFT
             self.move(width-100,0)
 
-class Clock:
+class Clock:                #Class for the clock/timer
 
-    def __init__(self):
+    def __init__(self):         #Begins the block
         self.start_time = time.time()
         self.pause_time = 0
         self.timer = 21
-    def pause(self):
+    def pause(self):            #Starts counting the the pause was initialized
         self.start_pause_time =time.time()
-    def unpause(self):
+    def unpause(self):              #Gets the time when the clock is unpaused the clock
         self.stop_pause_time = time.time()
         self.pause_time += self.stop_pause_time-self.start_pause_time
-    def get_time(self):
+    def get_time(self):                     #Calculates the overall time
         self.current_time = time.time()
         return self.timer - (self.current_time-self.start_time-self.pause_time)
-    def reinit(self):
+    def reinit(self):                   #Reinitializez the clock
         self.start_time = time.time()
         self.pause_time = 0
         self.timer = 21
         self.pause()
 
-class Bullet(gamesprite):
-    def __init__(self,x,y,r,image):
+class Bullet(gamesprite):               #Class for the bullet
+    def __init__(self,x,y,r,image):             #Initializes the bullet based on the direction of the player
         global canvas
         global game
         gamesprite.__init__(self,x,y,r,image)
@@ -94,7 +94,7 @@ class Bullet(gamesprite):
             self.shootY = +10
         game.after(20, self.shooting_move)
 
-    def shooting_move(self):
+    def shooting_move(self):            #Moves each bullet
         global canvas
         global game
         global score
@@ -108,14 +108,14 @@ class Bullet(gamesprite):
         if gamePaused == False:
             self.move(self.shootX, self.shootY)
             self.shot_time += 1
-            if self.shot_time == 180:
+            if self.shot_time == 200:
                 self.stop = True
             if end == True:
                 self.stop = True
             if self.stop == False:
                 try:
                     for oneenemy in Enemy:
-                        if self.collides(oneenemy):
+                        if self.collides(oneenemy):             #Checks for each bullet if it hit a enemy
                             score = score + 1
                             game_timer.timer = game_timer.timer + 1
                             coords = random_enemy()
@@ -140,9 +140,9 @@ class Bullet(gamesprite):
             canvas.update()
             game.after(10, self.shooting_move)
 
-class makeEnemy(gamesprite):
+class makeEnemy(gamesprite):            #Class for each enemy
 
-    def __init__(self, x, y, r, image):
+    def __init__(self, x, y, r, image):             #Initializes the enemy
         global canvas
         gamesprite.__init__(self,x,y,r,image)
         self.moving = True
@@ -150,12 +150,12 @@ class makeEnemy(gamesprite):
         self.counter = random.randint(4,10)
         self.moveEnemy()
 
-    def start(self):
+    def start(self):            #Starts it moving
         self.moving = True
-    def stop(self):
+    def stop(self):             #Stops it from moving
         self.moving = False
 
-    def moveEnemy(self):
+    def moveEnemy(self):        #Moves each enemy randomly
         global end
         global score
         global width
@@ -163,7 +163,7 @@ class makeEnemy(gamesprite):
         global endtxt
         global Enemy
         try:
-            if self.collides(Player):
+            if self.collides(Player):           #Checks if the enemy hits the player
                 end = True
                 endtxt = canvas.create_text(width//2,height//1.5,anchor=N, font=("Purisa",30),text="Game Over! You killed " + str(score) + " zombies and died")
                 Player.change_coords(width//2, height//2)
@@ -173,7 +173,7 @@ class makeEnemy(gamesprite):
                 restart_vars()
                 mainmenu()
             random_time = random.randint(100,150)
-            if self.moving:
+            if self.moving:                     #Then moves it randomly
                 if self.counter == 0:
                     self.zdirection = random.randint(0,3)
                     self.counter = random.randint(3,7)
@@ -201,7 +201,7 @@ class makeEnemy(gamesprite):
 
 class makePlayer(gamesprite):
 
-    def shoot(self, event):
+    def shoot(self, event):             #Event function for shooting
         global maxshots
         global ammotxt
         global reload_done
@@ -222,7 +222,7 @@ class makePlayer(gamesprite):
                 pass
             ammotxt = canvas.create_text(175,100,anchor=N,font=("Purisa",30),text="Ammo: {0}/10".format(10-maxshots))
 
-    def reload_timer(self, event):
+    def reload_timer(self, event):              #Event function for reloading
         global reload_done
         global reloadtxt
         if reload_done == True and gamePaused == False and end == False:
@@ -230,7 +230,7 @@ class makePlayer(gamesprite):
             reloadtxt = canvas.create_text(width/2,height/2,anchor=N,font=("Purisa",25),text="Reloading...")
             game.after(2000, self.reload)
 
-    def reload(self):
+    def reload(self):                   #Reloading function
         global maxshots
         global ammotxt
         global reload_done
@@ -244,7 +244,7 @@ class makePlayer(gamesprite):
         else:
             game.after(2000, self.reload)
 
-    def __init__(self, x, y, r, image):
+    def __init__(self, x, y, r, image):                 #Initializes the player and the keybinds for him
         global canvas
         gamesprite.__init__(self,x,y,r,image)
         self.direction = "down"
@@ -256,7 +256,7 @@ class makePlayer(gamesprite):
         canvas.bind("<KeyRelease>", self.keyreleased)
         canvas.focus_set()
 
-    def movePlayer(self):
+    def movePlayer(self):                       #Moves the player
         if self.direction == "left":
             self.move(-self.velocity,0)
             self.image_config(image=playerleft)
@@ -271,7 +271,7 @@ class makePlayer(gamesprite):
             self.image_config(image=playerdown)
         self.border()
 
-    def keypressed(self, event):
+    def keypressed(self, event):                #Checks if the moving keys are pressed
         if event.char == "a" or event.char == "A":
             self.direction = "left"
         elif event.char == "d" or event.char == "D":
@@ -283,10 +283,10 @@ class makePlayer(gamesprite):
         if event.char in ["w", "a", "s", "d", "W", "A", "S", "D"]:
             self.velocity = 8
 
-    def keyreleased(self, event):
+    def keyreleased(self, event):               #And checks when they are released
         self.velocity = 0
 
-def game_window(wsize, hsize):      #This function defines the main window
+def game_window(wsize, hsize):            #This function defines the main window
     game.title("Zombie Rush Invasion")
     global widthscreen
     global heightscreen
@@ -295,14 +295,13 @@ def game_window(wsize, hsize):      #This function defines the main window
     xvar = (widthscreen/2)-(wsize/2)
     yvar = (heightscreen/2)-(hsize/2)
     game.geometry('%dx%d+%d+%d' % (wsize, hsize, xvar, yvar))
-    #game.configure(background='#ffa500')
     return game
 
-def makeFullscreen():
-    game.attributes('-fullscreen',False)     #For fullscreen mode, to swith press F11
+def makeFullscreen():           #This function makes the game fullscreen
+    game.attributes('-fullscreen',False)     #To swith press F11
     game.bind("<F11>", lambda event: game.attributes("-fullscreen", not game.attributes("-fullscreen")))
 
-def pause(event):
+def pause(event):           #Main function for pausing the game
     global gamePaused
     global pausetxt
     global canvas
@@ -310,7 +309,7 @@ def pause(event):
     global menu
     global countdown
 
-    if not end:
+    if not end:                 #Checks if the game is already paused or if the game is over
         if gamePaused and countdown == False:
             try:
                 canvas.delete(pausetxt)
@@ -328,7 +327,7 @@ def pause(event):
             gamePaused = not gamePaused
 
 
-def ready_timer(time, text):
+def ready_timer(time, text):            #Function that has a timer for when the game is unpaused
     global gamePaused
     global canvas
     global scoretxt
@@ -351,7 +350,7 @@ def ready_timer(time, text):
         ammotxt = canvas.create_text(175,100,anchor=N,font=("Purisa",30),text="Ammo: {0}/10".format(10-maxshots))
         countdown = False
 
-def game_loop():
+def game_loop():                #The main function for the game loop/game engine which repeats for the game to run, in which all the actions happen
     global end
     global width
     global height
@@ -391,7 +390,7 @@ def game_loop():
 
     game.after(20,game_loop)
 
-def random_enemy():
+def random_enemy():             #Function to make sure that the enemis are not spawned directly on the player
     global canvas
     global Player
     enemy_width = random.randint(0,width)
@@ -402,7 +401,7 @@ def random_enemy():
         enemy_height = random.randint(100,height-100)
     return (enemy_width, enemy_height)
 
-def pausemenu_key(event):
+def pausemenu_key(event):           #Event function to pause the game
     global gamePaused
     global end
     if not end:
@@ -410,14 +409,14 @@ def pausemenu_key(event):
             pause(None)
             pausemenu()
 
-def unpausemenu_key(event):
+def unpausemenu_key(event):         #Event function to unpause the game
     global menu
     if not end:
         if gamePaused:
             pause(None)
             menu.destroy()
 
-def pausemenu():
+def pausemenu():            #Function that creates the pause menu
     global menu
     menu = menusettings()
     menu.bind("<Escape>", unpausemenu_key)
@@ -431,17 +430,17 @@ def pausemenu():
     Button(menu,text="Exit",command=lambda: exit(), activeforeground="darkred", fg="darkred", activebackground="darkgreen", background = "green", font=("Purisa",12, "bold"), pady=4).pack()
     Label(menu,text="W,A,S,D-Move, Space-Shoot R-Reload", bg = "green", fg="darkred", font=("Purisa",10, "bold")).pack()
     Label(menu,text="Esc-Menu P-Pause F11-Fullscreen", bg = "green", fg="darkred", font=("Purisa",10, "bold")).pack()
-    Label(menu,text="time/score-cheatcodes, boss-Bosskey", bg = "green", fg="darkred", font=("Purisa",10, "bold")).pack()
+    Label(menu,text="time/score-cheatcodes, b-Bosskey", bg = "green", fg="darkred", font=("Purisa",10, "bold")).pack()
     Label(menu,text="To access a save file you must use the same \n username with which the save file was made", bg = "green", fg="darkred", font=("Purisa",10, "bold")).pack()
 
-def restart_game():
+def restart_game():             #Function that restarts the game
     global Enemy
     for oneenemy in Enemy:
         oneenemy.delete()
     restart_vars()
     reset_game()
 
-def restart_vars():
+def restart_vars():             #Function that resets all the variables for when the game is over
     global score
     global maxshots
     global game_timer
@@ -452,7 +451,7 @@ def restart_vars():
     game_timer.reinit()
     game_timer.pause()
 
-def reset_game():
+def reset_game():               #Function that starts/restarts the game
     global menu
     global Player
     global score
@@ -495,7 +494,7 @@ def reset_game():
     end = False
     pause(None)
 
-def mainmenu():
+def mainmenu():                 #Function that creates the main menu
     global menu
     global gamePaused
     global game
@@ -512,10 +511,10 @@ def mainmenu():
     Button(menu,text="Exit",command=lambda: exit(), activeforeground="darkred", fg="darkred", activebackground="darkgreen", background = "green", font=("Purisa",14, "bold"), pady=5).pack()
     Label(menu,text="W,A,S,D-Move, Space-Shoot R-Reload", bg = "green", fg="darkred", font=("Purisa",10, "bold")).pack()
     Label(menu,text="Esc-Menu P-Pause F11-Fullscreen", bg = "green", fg="darkred", font=("Purisa",10, "bold")).pack()
-    Label(menu,text="time/score-cheatcodes, boss-Bosskey", bg = "green", fg="darkred", font=("Purisa",10, "bold")).pack()
+    Label(menu,text="time/score-cheatcodes, b-Bosskey", bg = "green", fg="darkred", font=("Purisa",10, "bold")).pack()
     Label(menu,text="To access a save file you must use the same \n username with which the save file was made", bg = "green", fg="darkred", font=("Purisa",10, "bold")).pack()
 
-def input_user():
+def input_user():               #Function that creats the menu in which the user enters his username
     global menu
     global user_menu
     global game
@@ -533,20 +532,20 @@ def input_user():
     Button(user_menu,text="OK",command=lambda value=name: name_change(value), activeforeground="darkred", fg="darkred", background = "green", font=("Purisa",14, "bold"), pady=5).pack()
     Button(user_menu,text="Back",command=lambda menu=user_menu: backtomain(menu), activeforeground="darkred", fg="darkred", background = "green", font=("Purisa",12, "bold"), pady=4).pack()
 
-def name_change(value):
+def name_change(value):          #Function that gets the username and updates it
     global username
     global user_menu
     username = value.get()
     backtomain(user_menu)
 
-def backtomain(menu):
+def backtomain(menu):           #Function that goes back to the main menu or pause menu
     menu.destroy()
     if end:
         mainmenu()
     else:
         pausemenu()
 
-def menusettings():
+def menusettings():             #Function that sets the settings for the menus
     menu = Toplevel(game, bg = "green", relief = "ridge", bd = 10)
     #menu.attributes("-topmost", True)
     menu.wm_attributes("-type", "splash")
@@ -556,7 +555,7 @@ def menusettings():
     menu.geometry("400x460+{0}+{1}".format(widthscreen//2-200,heightscreen//2-230-100))
     return menu
 
-def save_game():
+def save_game():                #Function that saves the game files and all the important variables
     global score
     global game_timer
     global maxshots
@@ -569,7 +568,7 @@ def save_game():
     save_list.append(extra_zombies)
     pickle.dump(save_list,open("savefiles/save_game_{0}.pkl".format(username), "wb"))
 
-def load_game():
+def load_game():                #Function that loads a save game file into the game
     global score
     global scoretxt
     global timertxt
@@ -605,7 +604,7 @@ def load_game():
     except FileNotFoundError:
         pass
 
-def show_leaderboard():
+def show_leaderboard():         #Function that displays the leaderboard
     global menu
     global leader_menu
     global leaderboard
@@ -623,7 +622,7 @@ def show_leaderboard():
         Label(leader_menu,text="Score: {1} from {0}".format(key,var), bg = "green", fg="darkred", font=("Purisa",12, "bold")).pack()
 
 
-def dump_leaderboard():
+def dump_leaderboard():         #Function that saves the score when the game is over
     global leaderboard
     global username
     if username != None:
@@ -631,7 +630,7 @@ def dump_leaderboard():
         leaderboard = dict(sorted(leaderboard.items(), key=lambda x:x[1], reverse=True))
         pickle.dump(leaderboard,open("Leaderboard.pkl", "wb"))
 
-def bosskey(event):
+def bosskey(event):             #Event function for the bosskey
     global boss_menu
     global gamePaused
     global widthscreen
@@ -641,23 +640,24 @@ def bosskey(event):
     boss_menu.attributes("-topmost",True)
     boss_menu.attributes("-fullscreen",True)
     boss_menu.attributes("-type","splash")
-    boss_menu.bind("boss", bossleft)
+    boss_menu.bind("b", bossleft)
+    boss_menu.bind("B", bossleft)
     boss_menu.focus_set()
     boss_canvas = Canvas(boss_menu)
     boss_canvas.create_image(widthscreen//2, 10, image = bossimg, anchor = N)
     boss_canvas.pack(fill = "both", expand = True)
     gamePaused = True
 
-def bossleft(event):
+def bossleft(event):            #Event function for when you want to close the boss key
     global boss_menu
     pause(None)
     boss_menu.destroy()
 
-def cheattime(event):
+def cheattime(event):           #Cheat for time
     global timer
     game_timer.timer = game_timer.timer + 100
 
-def cheatscore(event):
+def cheatscore(event):          #Cheat for score
     global canvas
     global score
     global scoretxt
@@ -665,7 +665,7 @@ def cheatscore(event):
     canvas.delete(scoretxt)
     scoretxt = canvas.create_text(150,50,anchor=N,font=("Purisa",30),text="Score: " + str(int((score))))
 
-game = Tk()
+game = Tk()             #Initializing the window
 global widthscreen
 global heightscreen
 global width
@@ -678,11 +678,12 @@ height = heightscreen
 
 
 game = game_window(width, height)
-canvas = Canvas(game, bg = "darkgreen", relief = "ridge", bd = 20)
+canvas = Canvas(game, bg = "darkgreen", relief = "ridge", bd = 20)          #Initializing the canvas on the window
 canvas.pack(fill = "both", expand = True)
 
 makeFullscreen()
 
+#All the images used below
 bossimg = PhotoImage(file = "images/bossimage.png")
 
 imgup = PhotoImage(file = "images/playerup.png")
@@ -712,12 +713,14 @@ bulletleft = bimgleft.subsample(4, 4)
 bimgright = PhotoImage(file = "images/bulletright.png")
 bulletright = bimgright.subsample(4, 4)
 
+#All the binds appart from the player ones
 game.bind("<p>", pause)
 game.bind("<P>", pause)
 game.bind("<Escape>", pausemenu_key)
 game.bind("time", cheattime)
 game.bind("score", cheatscore)
-game.bind("boss", bosskey)
+game.bind("b", bosskey)
+game.bind("B", bosskey)
 
 global gamePaused
 global end
@@ -730,11 +733,12 @@ global countdown
 global game_timer
 global extra_zombies
 
-try:
+try:        #Tries creating a leaderboard folder if it is not found
     leaderboard = pickle.load(open("Leaderboard.pkl", "rb"))
 except FileNotFoundError:
     leaderboard = {}
 
+#Initializes all the variables when the programme is ran
 score = 0
 zombie_nr = 4
 maxshots = 0
