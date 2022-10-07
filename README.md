@@ -1,1 +1,3 @@
-# Spell check and Zombie game with GUI written in Python
+# 2 Python Projects
+
+A spell checker and zombie game with GUI written by me in python
