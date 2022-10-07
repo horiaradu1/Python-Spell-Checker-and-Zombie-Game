@@ -1,3 +1,1 @@
-# Python Coursework 01
-
-Base repo for Pyton Coursework (COMP16321)
+# Spell check and Zombie game with GUI written in Python
